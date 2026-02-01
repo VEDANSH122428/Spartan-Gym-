@@ -1,0 +1,167 @@
+{
+  "project_name": "Spartans Gym",
+  "design_philosophy": {
+    "persona": "E1: The Anti-AI Designer",
+    "archetype": "The Performance Pro",
+    "core_principles": [
+      "Fusion over Imitation: Mix tactical military aesthetics with high-end fitness luxury.",
+      "Emotion First: Every pixel must scream 'Motivation' and 'Discipline'.",
+      "Content is King: The story of transformation drives the layout.",
+      "Zoom In: Focus on sweat, metal, and texture.",
+      "Negative Space: Use deep black voids to make the red accents pop."
+    ],
+    "anti_patterns": [
+      "No purple or teal CTAs.",
+      "No 'Inter' for headings.",
+      "No center-aligned text blocks (unless for specific dramatic effect).",
+      "No generic full-screen gradients."
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "\"Barlow Condensed\", sans-serif",
+      "body": "\"Manrope\", sans-serif",
+      "accent": "\"Teko\", sans-serif"
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Manrope:wght@400;500;700&family=Teko:wght@400;600;700&display=swap');"
+    ],
+    "usage_rules": {
+      "h1": "text-6xl md:text-8xl font-black tracking-tighter uppercase font-headings",
+      "h2": "text-4xl md:text-6xl font-bold tracking-tight uppercase font-headings",
+      "h3": "text-2xl md:text-3xl font-semibold tracking-wide uppercase font-headings text-red-500",
+      "body": "text-base md:text-lg font-normal leading-relaxed text-gray-300 font-body",
+      "cta": "font-bold tracking-widest uppercase font-accent"
+    }
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "DEFAULT": "#DC2626",
+        "foreground": "#FFFFFF",
+        "hover": "#B91C1C"
+      },
+      "background": "#09090B",
+      "foreground": "#FAFAFA",
+      "card": "#18181B",
+      "card_foreground": "#FAFAFA",
+      "muted": "#27272A",
+      "muted_foreground": "#A1A1AA",
+      "border": "#27272A",
+      "accent": "#DC2626",
+      "accent_foreground": "#FFFFFF"
+    },
+    "gradients": {
+      "hero_overlay": "linear-gradient(to bottom, rgba(9,9,11,0) 0%, rgba(9,9,11,0.8) 80%, #09090B 100%)",
+      "red_glow": "radial-gradient(circle at center, rgba(220, 38, 38, 0.15) 0%, rgba(9, 9, 11, 0) 70%)"
+    },
+    "usage": {
+      "background": "bg-[#09090B]",
+      "surface": "bg-[#18181B]",
+      "primary_cta": "bg-[#DC2626] hover:bg-[#B91C1C] text-white",
+      "text_primary": "text-white",
+      "text_secondary": "text-gray-400",
+      "border_subtle": "border-white/10"
+    }
+  },
+  "layout_strategies": {
+    "marketing_page": {
+      "grid_system": "Mode A: The Tetris Grid (Asymmetrical, Artful)",
+      "spacing": "Generous (p-12, p-24, gap-8)",
+      "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+    },
+    "dashboard": {
+      "grid_system": "Mode B: High Density Grid (Dense, Functional)",
+      "spacing": "Tight (p-4, gap-4)",
+      "style": "Tactical Command Center - Sharp edges, high contrast borders"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "rounded-none uppercase tracking-widest font-bold px-8 py-4 bg-red-600 hover:bg-red-700 text-white transition-all duration-300 skew-x-[-10deg]",
+      "secondary": "rounded-none uppercase tracking-widest font-bold px-8 py-4 border border-white/20 hover:bg-white/10 text-white transition-all duration-300 skew-x-[-10deg]",
+      "ghost": "rounded-none uppercase tracking-widest font-bold px-6 py-3 text-gray-400 hover:text-white transition-colors"
+    },
+    "cards": {
+      "marketing": "bg-zinc-900/50 border border-white/5 hover:border-red-500/50 transition-colors duration-300 p-8 backdrop-blur-sm",
+      "dashboard": "bg-zinc-900 border border-zinc-800 p-4 rounded-sm"
+    },
+    "inputs": {
+      "style": "bg-zinc-950 border-zinc-800 focus:border-red-500 focus:ring-red-500/20 rounded-sm h-12"
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Use subtle noise overlay (opacity 0.03) on solid backgrounds to prevent digital flatness.",
+    "borders": "Use 1px borders with low opacity (white/10) to define structure without clutter.",
+    "shadows": "Avoid soft diffuse shadows. Use sharp, directional shadows or glow effects for active states.",
+    "motion": {
+      "scroll": "Use Lenis for smooth scrolling.",
+      "reveal": "Staggered fade-in-up for list items.",
+      "hover": "Slight scale (1.02) and brightness boost on interactive cards."
+    }
+  },
+  "image_urls": {
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1561570121-c8219daec12b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwxfHxpbnRlbnNlJTIwZ3ltJTIwd29ya291dCUyMGRhcmslMjBsaWdodGluZ3xlbnwwfHx8fDE3NjkyNDc3MzV8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Intense female boxer training",
+      "category": "hero_background"
+    },
+    "trainers": [
+      {
+        "name": "Ravi",
+        "role": "Head Coach",
+        "url": "https://images.pexels.com/photos/6551095/pexels-photo-6551095.jpeg",
+        "alt": "Trainer Ravi Portrait"
+      },
+      {
+        "name": "Raj",
+        "role": "Strength Coach",
+        "url": "https://images.pexels.com/photos/6739930/pexels-photo-6739930.jpeg",
+        "alt": "Trainer Raj Portrait"
+      }
+    ],
+    "facilities": [
+      {
+        "title": "Modern Equipment",
+        "url": "https://images.pexels.com/photos/9669473/pexels-photo-9669473.jpeg",
+        "alt": "Gym interior with modern machines"
+      },
+      {
+        "title": "Free Weights Zone",
+        "url": "https://images.unsplash.com/photo-1734630341082-0fec0e10126c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwyfHxpbnRlbnNlJTIwZ3ltJTIwd29ya291dCUyMGRhcmslMjBsaWdodGluZ3xlbnwwfHx8fDE3NjkyNDc3MzV8MA&ixlib=rb-4.1.0&q=85",
+        "alt": "Dumbbells rack"
+      },
+      {
+        "title": "Cardio Section",
+        "url": "https://images.unsplash.com/photo-1637870473618-8c9fa7d11f0a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBneW0lMjBpbnRlcmlvciUyMGVxdWlwbWVudCUyMGRhcmt8ZW58MHx8fHwxNzY5MzQxMTUwfDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Spinning bikes in dark room"
+      }
+    ],
+    "motivation": {
+      "url": "https://images.pexels.com/photos/136404/pexels-photo-136404.jpeg",
+      "alt": "Gym atmosphere",
+      "category": "section_background"
+    }
+  },
+  "instructions_to_main_agent": {
+    "general": "You are building a high-octane fitness brand, not a corporate SaaS. Be bold. Be aggressive. Use the 'Tetris' grid for the landing page to break monotony.",
+    "theme_setup": "Ensure 'dark' class is applied to the root/html element by default. The site should be dark mode only.",
+    "components": "Use Shadcn for the 'Admin Dashboard' (Attendance, Forms) but heavily customize the colors to match the Zinc-950/Red-600 palette. For the 'Landing Page', build custom layouts using Tailwind classes directly to achieve the 'Anti-AI' look.",
+    "navigation": "Create a sticky glassmorphic header (bg-black/80 backdrop-blur-md) with a red bottom border (border-b border-red-600/20).",
+    "admin_dashboard": "The attendance manager must be dense. Use a table component with small padding. Add 'Export to Excel' functionality using a library like 'xlsx'.",
+    "map": "Embed the Google Map for 'Pilkhuwa, Uttar Pradesh 245304' in the contact section. Use a grayscale filter on the map if possible to match the theme."
+  },
+  "universal_guidelines": {
+    "do_not": [
+      "Do not use gradients for text unless it's a very subtle metallic sheen.",
+      "Do not use rounded-xl or rounded-2xl. Stick to rounded-sm or rounded-none for that 'tough' look.",
+      "Do not use default blue colors for links or buttons."
+    ],
+    "must_do": [
+      "Add data-testid to all interactive elements.",
+      "Ensure all text has sufficient contrast (WCAG AA).",
+      "Use 'sonner' for toast notifications.",
+      "Use 'lucide-react' for icons."
+    ]
+  }
+}
