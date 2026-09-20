@@ -1,0 +1,14 @@
+name: Check Membership Expiry
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-expiry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call expiry check endpoint
+        run: |
+          curl -X POST https://spartan-gym-backend.onrender.com/api/cron/check-expiry -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}"
