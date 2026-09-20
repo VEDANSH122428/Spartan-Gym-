@@ -77,8 +77,7 @@ class MemberCreate(BaseModel):
     phone: str
     membership_plan: str
 
-    class MembershipActivate(BaseModel):
-        start_date: str
+    
 
 class Admin(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -265,7 +264,10 @@ async def export_attendance(date: Optional[str] = None, token_payload: dict = De
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename=attendance_{date}.xlsx"}
     )
-
+ 
+ class MembershipActivate(BaseModel):
+        start_date: str
+        
 @api_router.put("/members/{member_id}/membership", response_model=Member)
 async def activate_membership(member_id: str, data: MembershipActivate, token_payload: dict = Depends(verify_token)):
     member = await db.members.find_one({"id": member_id}, {"_id": 0})
