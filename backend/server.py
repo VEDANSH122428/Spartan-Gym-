@@ -78,7 +78,7 @@ class MemberCreate(BaseModel):
     membership_plan: str
 
     class MembershipActivate(BaseModel):
-    start_date: str
+        start_date: str
 
 class Admin(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -324,7 +324,7 @@ async def check_expiry(x_cron_secret: Optional[str] = Header(None)):
             results["reminders_sent"] += 1
 
     return results
-    
+
 app.include_router(api_router)
 
 app.add_middleware(
