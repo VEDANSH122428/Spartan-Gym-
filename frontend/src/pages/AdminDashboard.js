@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Dumbbell, LogOut, Download, Users, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { Dumbbell, LogOut, Download, Users, CheckCircle, XCircle, RefreshCw, Calendar, X } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import * as XLSX from 'xlsx';
@@ -14,6 +14,9 @@ const AdminDashboard = () => {
   const [attendance, setAttendance] = useState({});
   const [loading, setLoading] = useState(true);
   const [markingAttendance, setMarkingAttendance] = useState({});
+  const [activatingMember, setActivatingMember] = useState(null);
+  const [startDate, setStartDate] = useState("");
+  const [activating, setActivating] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -87,6 +90,35 @@ const AdminDashboard = () => {
     }
   };
 
+  const openActivateModal = (member) => {
+    setActivatingMember(member);
+    setStartDate(new Date().toISOString().split('T')[0]);
+  };
+
+  const activateMembership = async () => {
+    if (!startDate) {
+      toast.error("Please pick a start date");
+      return;
+    }
+    const token = localStorage.getItem('adminToken');
+    setActivating(true);
+
+    try {
+      await axios.put(
+        `${API}/members/${activatingMember.id}/membership`,
+        { start_date: startDate },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success(`${activatingMember.name}'s membership activated!`);
+      setActivatingMember(null);
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to activate membership");
+    } finally {
+      setActivating(false);
+    }
+  };
+
   const exportToExcel = () => {
     const today = new Date().toLocaleDateString('en-IN');
     const data = members.map(member => ({
@@ -115,6 +147,34 @@ const AdminDashboard = () => {
   const presentCount = Object.values(attendance).filter(val => val === true).length;
   const absentCount = Object.values(attendance).filter(val => val === false).length;
   const unmarkedCount = members.length - presentCount - absentCount;
+
+  const membershipBadge = (member) => {
+    const status = member.membership_status || 'pending';
+    if (status === 'active') {
+      return (
+        <div>
+          <span className="inline-flex items-center px-2 py-1 rounded-sm text-xs font-accent tracking-wider bg-green-600/20 text-green-500 border border-green-600/30">
+            ACTIVE
+          </span>
+          {member.membership_end && (
+            <p className="text-xs text-gray-500 mt-1">until {member.membership_end}</p>
+          )}
+        </div>
+      );
+    }
+    if (status === 'expired') {
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-sm text-xs font-accent tracking-wider bg-red-600/20 text-red-500 border border-red-600/30">
+          EXPIRED
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center px-2 py-1 rounded-sm text-xs font-accent tracking-wider bg-yellow-600/20 text-yellow-500 border border-yellow-600/30">
+        PENDING
+      </span>
+    );
+  };
 
   if (loading) {
     return (
@@ -228,7 +288,8 @@ const AdminDashboard = () => {
                   <th className="px-4 py-3 text-left text-xs font-accent tracking-wider text-gray-400 uppercase hidden md:table-cell">Email</th>
                   <th className="px-4 py-3 text-left text-xs font-accent tracking-wider text-gray-400 uppercase hidden sm:table-cell">Phone</th>
                   <th className="px-4 py-3 text-left text-xs font-accent tracking-wider text-gray-400 uppercase hidden lg:table-cell">Plan</th>
-                  <th className="px-4 py-3 text-center text-xs font-accent tracking-wider text-gray-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-center text-xs font-accent tracking-wider text-gray-400 uppercase">Membership</th>
+                  <th className="px-4 py-3 text-center text-xs font-accent tracking-wider text-gray-400 uppercase">Attendance</th>
                   <th className="px-4 py-3 text-center text-xs font-accent tracking-wider text-gray-400 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -239,6 +300,9 @@ const AdminDashboard = () => {
                     <td className="px-4 py-4 text-sm font-body text-gray-400 hidden md:table-cell">{member.email}</td>
                     <td className="px-4 py-4 text-sm font-body text-gray-400 hidden sm:table-cell">{member.phone}</td>
                     <td className="px-4 py-4 text-sm font-body text-gray-400 capitalize hidden lg:table-cell">{member.membership_plan}</td>
+                    <td className="px-4 py-4 text-center">
+                      {membershipBadge(member)}
+                    </td>
                     <td className="px-4 py-4 text-center">
                       {attendance[member.id] === true && (
                         <span className="inline-flex items-center px-2 py-1 rounded-sm text-xs font-accent tracking-wider bg-green-600/20 text-green-500 border border-green-600/30" data-testid={`status-present-${member.id}`}>
@@ -285,6 +349,15 @@ const AdminDashboard = () => {
                         >
                           <XCircle className="w-5 h-5" />
                         </button>
+
+                        <button
+                          onClick={() => openActivateModal(member)}
+                          className="p-2 rounded-sm bg-zinc-800 text-gray-400 hover:bg-blue-600 hover:text-white transition-all"
+                          title="Activate / Renew Membership"
+                          data-testid={`activate-membership-${member.id}`}
+                        >
+                          <Calendar className="w-5 h-5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -301,6 +374,41 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
+
+      {activatingMember && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4" data-testid="activate-membership-modal">
+          <div className="bg-zinc-900 border border-blue-600/30 rounded-sm max-w-sm w-full p-8 relative">
+            <button onClick={() => setActivatingMember(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+              <X className="w-6 h-6" />
+            </button>
+
+            <h3 className="text-xl font-bold uppercase font-headings text-white mb-2">Activate Membership</h3>
+            <p className="text-gray-400 font-body text-sm mb-6">
+              {activatingMember.name} &middot; <span className="capitalize">{activatingMember.membership_plan}</span> plan
+            </p>
+
+            <label className="block text-sm font-accent tracking-wider text-gray-400 mb-2">
+              PAYMENT / START DATE
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full bg-zinc-950 border border-zinc-800 focus:border-blue-500 rounded-sm h-12 px-4 text-white focus:outline-none mb-6"
+              data-testid="membership-start-input"
+            />
+
+            <button
+              onClick={activateMembership}
+              disabled={activating}
+              className="w-full uppercase tracking-widest font-bold px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 disabled:opacity-50"
+              data-testid="confirm-activate-btn"
+            >
+              {activating ? 'Activating...' : 'Confirm & Activate'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

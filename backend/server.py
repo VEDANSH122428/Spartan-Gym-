@@ -1,4 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+import smtplib
+from email.mime.text import MIMEText
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -29,6 +31,31 @@ api_router = APIRouter(prefix="/api")
 JWT_SECRET = os.environ.get('JWT_SECRET', 'spartans-gym-secret-key-2024')
 JWT_ALGORITHM = 'HS256'
 security = HTTPBearer()
+PLAN_DURATIONS = {
+    "monthly": 30,
+    "quarterly": 90,
+    "half-yearly": 182,
+    "yearly": 365,
+    "personal-training": 30
+}
+
+EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS')
+EMAIL_APP_PASSWORD = os.environ.get('EMAIL_APP_PASSWORD')
+CRON_SECRET = os.environ.get('CRON_SECRET', 'change-me')
+
+def send_email(to_email: str, subject: str, body: str):
+    if not EMAIL_ADDRESS or not EMAIL_APP_PASSWORD:
+        return
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = EMAIL_ADDRESS
+    msg['To'] = to_email
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            smtp.login(EMAIL_ADDRESS, EMAIL_APP_PASSWORD)
+            smtp.send_message(msg)
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Email send failed: {e}")
 
 class Member(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -39,12 +66,19 @@ class Member(BaseModel):
     membership_plan: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     active: bool = True
+    membership_status: str = "pending"
+    membership_start: Optional[str] = None
+    membership_end: Optional[str] = None
+    reminder_sent: bool = False
 
 class MemberCreate(BaseModel):
     name: str
     email: EmailStr
     phone: str
     membership_plan: str
+
+    class MembershipActivate(BaseModel):
+    start_date: str
 
 class Admin(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -232,6 +266,65 @@ async def export_attendance(date: Optional[str] = None, token_payload: dict = De
         headers={"Content-Disposition": f"attachment; filename=attendance_{date}.xlsx"}
     )
 
+@api_router.put("/members/{member_id}/membership", response_model=Member)
+async def activate_membership(member_id: str, data: MembershipActivate, token_payload: dict = Depends(verify_token)):
+    member = await db.members.find_one({"id": member_id}, {"_id": 0})
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+
+    duration_days = PLAN_DURATIONS.get(member['membership_plan'], 30)
+    start = datetime.strptime(data.start_date, "%Y-%m-%d")
+    end = start + timedelta(days=duration_days)
+
+    await db.members.update_one(
+        {"id": member_id},
+        {"$set": {
+            "membership_status": "active",
+            "membership_start": data.start_date,
+            "membership_end": end.strftime("%Y-%m-%d"),
+            "reminder_sent": False
+        }}
+    )
+
+    updated = await db.members.find_one({"id": member_id}, {"_id": 0})
+    if isinstance(updated['created_at'], str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return Member(**updated)
+
+@api_router.post("/cron/check-expiry")
+async def check_expiry(x_cron_secret: Optional[str] = Header(None)):
+    if x_cron_secret != CRON_SECRET:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    today = datetime.now(timezone.utc).date()
+    reminder_date = today + timedelta(days=3)
+    members = await db.members.find({"membership_status": "active"}, {"_id": 0}).to_list(1000)
+    results = {"reminders_sent": 0, "expired": 0}
+
+    for m in members:
+        if not m.get('membership_end'):
+            continue
+        end_date = datetime.strptime(m['membership_end'], "%Y-%m-%d").date()
+
+        if end_date < today:
+            await db.members.update_one({"id": m['id']}, {"$set": {"membership_status": "expired"}})
+            send_email(
+                m['email'],
+                "Your Spartans Gym Membership Has Expired",
+                f"Hi {m['name']},\n\nYour {m['membership_plan']} membership expired on {m['membership_end']}. Please renew to continue enjoying our facilities.\n\n- Spartans Gym"
+            )
+            results["expired"] += 1
+        elif end_date == reminder_date and not m.get('reminder_sent'):
+            send_email(
+                m['email'],
+                "Your Spartans Gym Membership is Expiring Soon",
+                f"Hi {m['name']},\n\nYour {m['membership_plan']} membership will expire on {m['membership_end']}. Please renew soon to avoid interruption.\n\n- Spartans Gym"
+            )
+            await db.members.update_one({"id": m['id']}, {"$set": {"reminder_sent": True}})
+            results["reminders_sent"] += 1
+
+    return results
+    
 app.include_router(api_router)
 
 app.add_middleware(
