@@ -233,7 +233,7 @@ const HomePage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent"></div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-2xl font-semibold tracking-wide uppercase font-headings text-red-500 mb-2">Arjun Verma</h3>
+                  <h3 className="text-2xl font-semibold tracking-wide uppercase font-headings text-red-500 mb-2">Shiva Chauhan</h3>
                   <p className="text-gray-400 font-accent tracking-wider mb-3">JUNIOR TRAINER</p>
                   <p className="text-gray-300 font-body">Passionate about fitness with expertise in calisthenics and functional training. Dedicated to helping beginners start their fitness journey with the right form and technique.</p>
                 </div>
